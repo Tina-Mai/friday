@@ -10,6 +10,7 @@ import Input from "@/components/Home/Input";
 import { getOpenAIResponse } from "@/lib/openai/response";
 import { TranscriptEntry } from "@/types";
 import { useMemory } from "@/context/MemoryContext";
+import { startRecording, stopRecordingAndTranscribe } from "@/lib/openai/stt";
 
 export default function Home() {
 	const [speaking, setSpeaking] = useState(false);
@@ -17,6 +18,36 @@ export default function Home() {
 	const [transcript, setTranscript] = useState<TranscriptEntry[]>([{ sender: "assistant", message: "Hey, I'm Friday. How can I help?" }]);
 	const [showSettings, setShowSettings] = useState(false);
 	const { memories } = useMemory();
+
+	// STT
+	useEffect(() => {
+		let isMounted = true;
+		const handleRecording = async () => {
+			if (speaking) {
+				try {
+					console.log("Starting recording");
+					await startRecording();
+				} catch (error) {
+					console.error("Error starting recording:", error);
+				}
+			} else {
+				try {
+					console.log("Stopping recording and transcribing");
+					const transcription = await stopRecordingAndTranscribe();
+					if (isMounted) {
+						setUserMessage(transcription);
+						sendUserMessage(transcription);
+					}
+				} catch (error) {
+					console.error("Error stopping recording and transcribing:", error);
+				}
+			}
+		};
+		handleRecording();
+		return () => {
+			isMounted = false;
+		};
+	}, [speaking]);
 
 	// scroll to bottom
 	const scrollViewRef = useRef<ScrollView>(null);
@@ -44,19 +75,24 @@ export default function Home() {
 	}, []);
 
 	// send user message
-	const sendUserMessage = useCallback(async () => {
-		if (!userMessage.trim()) return;
+	const sendUserMessage = useCallback(
+		async (message: string) => {
+			if (!message.trim()) return;
 
-		addToTranscript({ sender: "user", message: userMessage });
-		setUserMessage("");
+			addToTranscript({ sender: "user", message });
+			setUserMessage("");
 
-		try {
-			const openAIResponse = await getOpenAIResponse(userMessage, transcript, memories);
-			addToTranscript({ sender: "assistant", message: openAIResponse || "" });
-		} catch (error) {
-			console.error("Error in sendUserMessage:", error);
-		}
-	}, [userMessage, transcript, addToTranscript, memories]);
+			try {
+				const openAIResponse = await getOpenAIResponse(message, transcript, memories);
+				addToTranscript({ sender: "assistant", message: openAIResponse || "" });
+			} catch (error) {
+				console.error("Error in sendUserMessage:", error);
+				addToTranscript({ sender: "assistant", message: "Oops, I encountered an error while processing your request. Please try again." });
+				setUserMessage("");
+			}
+		},
+		[transcript, addToTranscript, memories]
+	);
 
 	return (
 		<SafeAreaView style={{ ...screen.safe, backgroundColor: speaking ? COLORS.light : COLORS.bg }}>
@@ -67,18 +103,14 @@ export default function Home() {
 			>
 				<KeyboardAvoidingView behavior={"padding"} style={{ ...screen.content, flex: 1 }}>
 					<Header speaking={speaking} onOpenSettings={() => setShowSettings(true)} setTranscript={setTranscript} />
-
 					{/* transcript */}
 					<Transcript transcript={transcript} speaking={speaking} scrollViewRef={scrollViewRef} />
-
 					{/* show prompts when nothing has been said yet */}
 					{transcript.length <= 1 && <Prompts speaking={speaking} />}
-
 					{/* mic button */}
 					<MicButton speaking={speaking} setSpeaking={setSpeaking} />
-
 					{/* input */}
-					<Input userMessage={userMessage} setUserMessage={setUserMessage} sendUserMessage={sendUserMessage} speaking={speaking} />
+					<Input userMessage={userMessage} setUserMessage={setUserMessage} sendUserMessage={() => sendUserMessage(userMessage)} speaking={speaking} />
 				</KeyboardAvoidingView>
 			</ScrollView>
 
