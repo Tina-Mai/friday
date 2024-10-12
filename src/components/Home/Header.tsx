@@ -9,7 +9,10 @@ const Header = ({ speaking, onOpenSettings, setTranscript }: { speaking: boolean
 			<Image source={images.logo} style={{ width: 24, height: 24, tintColor: speaking ? COLORS.black : COLORS.white }} />
 
 			<View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
-				<TouchableOpacity onPress={() => setTranscript([])} style={{ ...buttons.pillButtonWrapper, backgroundColor: speaking ? "#D1D1D6" : COLORS.gray3 }}>
+				<TouchableOpacity
+					onPress={() => setTranscript([{ sender: "assistant", message: "Hey, I'm Friday. How can I help?" }])}
+					style={{ ...buttons.pillButtonWrapper, backgroundColor: speaking ? "#D1D1D6" : COLORS.gray3 }}
+				>
 					<Text style={{ ...buttons.pillButtonText, ...FONTS.footnote }}>+ New chat</Text>
 				</TouchableOpacity>
 				<TouchableOpacity onPress={onOpenSettings}>
