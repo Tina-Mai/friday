@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { SafeAreaView, View, Text, TouchableOpacity, ScrollView, TextInput, KeyboardAvoidingView } from "react-native";
+import { SafeAreaView, View, Text, ScrollView, TextInput, KeyboardAvoidingView } from "react-native";
 import { screen, inputArea, COLORS, FONTS } from "@/constants";
-import Header from "@/components/Home/Header";
 import Settings from "@/screens/Settings";
+import Header from "@/components/Home/Header";
 import Prompts from "@/components/Home/Prompts";
+import MicButton from "@/components/Home/MicButton";
 
 export default function Home() {
 	const [speaking, setSpeaking] = useState(false);
@@ -21,20 +22,16 @@ export default function Home() {
 						<Text style={{ ...FONTS.title, color: speaking ? COLORS.black : COLORS.white }}>Hey, I'm Friday. How can I help?</Text>
 					</ScrollView>
 
+					{/* show when nothing has been said yet */}
 					<Prompts speaking={speaking} />
 
 					{/* mic button */}
-					<TouchableOpacity
-						style={{ width: 115, height: 115, backgroundColor: speaking ? COLORS.black : COLORS.white, borderRadius: 100, alignSelf: "center", marginVertical: 45 }}
-						onPressIn={() => setSpeaking(true)}
-						onPressOut={() => setSpeaking(false)}
-						activeOpacity={1}
-					/>
+					<MicButton speaking={speaking} setSpeaking={setSpeaking} />
 
 					{/* input */}
 					<View>
-						<View style={{ ...inputArea.wrapper, backgroundColor: speaking ? "#E1E1E4" : COLORS.gray5 }}>
-							<TextInput style={inputArea.text} placeholder="Type something..." placeholderTextColor={speaking ? "#AEAEB2" : COLORS.gray1} />
+						<View style={{ ...inputArea.wrapper, backgroundColor: speaking ? "#D1D1D6" : "#2C2C2E" }}>
+							<TextInput style={{ ...inputArea.text, width: "102%" }} placeholder="Type something..." placeholderTextColor={COLORS.gray1} clearButtonMode="while-editing" />
 						</View>
 						{/* adding extra space so that KeyboardAvoidingView looks good */}
 						<View style={{ height: 85 }} />
