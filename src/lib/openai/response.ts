@@ -21,6 +21,20 @@ const functions = [
 			required: ["query"],
 		},
 	},
+	{
+		name: "interact_with_local_machine",
+		description: "Interact with the user's local machine that will allow you to perform actions like opening files, adding calendar events, sending emails, etc.",
+		parameters: {
+			type: "object",
+			properties: {
+				prompt: {
+					type: "string",
+					description: "The natural language prompt to send to Open Interpreter",
+				},
+			},
+			required: ["prompt"],
+		},
+	},
 ];
 
 export const getOpenAIResponse = async (message: string, transcript: TranscriptEntry[]) => {
@@ -28,7 +42,7 @@ export const getOpenAIResponse = async (message: string, transcript: TranscriptE
 		console.log("Starting getOpenAIResponse function");
 		console.log("User message:", message);
 
-		// First API call to OpenAI
+		// first API call to OpenAI
 		console.log("Making initial API call to OpenAI");
 		const response = await openai.chat.completions.create({
 			model: "gpt-4o",
@@ -36,7 +50,7 @@ export const getOpenAIResponse = async (message: string, transcript: TranscriptE
 				{
 					role: "system",
 					content:
-						"You are Friday, a helpful, supportive, and witty assistant for a smart university student. Your messages are being read aloud to the user, so keep your responses concise (3 or less sentences). Do not use markdown; only respond in plain text. You have the ability to search the web for current information when needed.",
+						"You are Friday, a helpful, supportive, and witty assistant for a smart university student. Your messages are being read aloud to the user, so keep your responses concise (1-2 sentences). Do not use markdown; only respond in plain text. You have the ability to search the web for current information and interact with their local machine (for modifying the user's calendar, managing their emails when needed, etc.).",
 				},
 				{
 					role: "user",
@@ -55,40 +69,40 @@ export const getOpenAIResponse = async (message: string, transcript: TranscriptE
 			const functionName = responseMessage.function_call.name;
 			const functionArgs = JSON.parse(responseMessage.function_call.arguments);
 
-			if (functionName === "web_search") {
-				console.log("Executing web search function");
-				console.log("Search query:", functionArgs.query);
-				const searchResults = await webSearch(functionArgs.query);
-				console.log("Web search results received");
-
-				// Format search results for GPT
-				const formattedResults = searchResults.join("\n\n");
-
-				// Second API call to OpenAI with search results
-				console.log("Making second API call to OpenAI with search results");
-				const secondResponse = await openai.chat.completions.create({
-					model: "gpt-4o-mini",
-					messages: [
-						{
-							role: "system",
-							content:
-								"You are a helpful assistant. Provide a direct and concise answer based on the web search results. Do not mention the sources or that you performed a web search. Just give the information as if you knew it.",
-						},
-						{
-							role: "user",
-							content: message,
-						},
-						{
-							role: "function",
-							name: "web_search",
-							content: formattedResults,
-						},
-					],
-				});
-
-				console.log("Second OpenAI response received");
-				return secondResponse.choices[0].message.content;
+			let functionResult;
+			switch (functionName) {
+				case "web_search":
+					functionResult = await webSearch(functionArgs.query);
+					break;
+				case "interact_with_local_machine":
+					functionResult = await interactWithLocalMachine(functionArgs.prompt);
+					break;
 			}
+
+			// second API call to OpenAI with function results
+			console.log("Making second API call to OpenAI with function results");
+			const secondResponse = await openai.chat.completions.create({
+				model: "gpt-4o-mini",
+				messages: [
+					{
+						role: "system",
+						content:
+							"You are a helpful assistant. Provide a direct and concise answer based on the function results. Do not mention the sources or that you performed a function call. Just give the information as if you knew it.",
+					},
+					{
+						role: "user",
+						content: message,
+					},
+					{
+						role: "function",
+						name: functionName,
+						content: JSON.stringify(functionResult),
+					},
+				],
+			});
+
+			console.log("Second OpenAI response received");
+			return secondResponse.choices[0].message.content;
 		}
 
 		console.log("Returning initial OpenAI response");
@@ -98,3 +112,25 @@ export const getOpenAIResponse = async (message: string, transcript: TranscriptE
 		throw error;
 	}
 };
+
+async function interactWithLocalMachine(prompt: string) {
+	try {
+		const response = await fetch("http://10.10.31.22:5001/run_interpreter", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({ prompt }),
+		});
+
+		if (!response.ok) {
+			throw new Error(`HTTP error! status: ${response.status}`);
+		}
+
+		const data = await response.json();
+		return data.response;
+	} catch (error) {
+		console.error("Error interacting with local machine:", error);
+		throw error;
+	}
+}
