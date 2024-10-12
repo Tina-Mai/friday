@@ -1,12 +1,14 @@
 import * as React from "react";
 import { useCallback } from "react";
-import { View } from "react-native";
+import { View, LogBox } from "react-native";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import Navigation from "@/navigation";
 import { MemoryProvider } from "@/context/MemoryContext";
 
 SplashScreen.preventAutoHideAsync();
+
+LogBox.ignoreLogs(["Error stopping recording and transcribing: [Error: No recording in progress]"]);
 
 export default function App() {
 	// load fonts
