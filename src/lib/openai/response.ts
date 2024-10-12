@@ -88,7 +88,7 @@ export const getOpenAIResponse = async (message: string, transcript: TranscriptE
 					{
 						role: "system",
 						content:
-							"You are a helpful assistant. Provide a direct and concise answer based on the function results. Do not mention the sources or that you performed a function call. Just give the information as if you knew it.",
+							"You are a helpful assistant. Provide a direct and concise answer based on the function results. Do not mention the sources or that you performed a function call. Just give the information as if you knew it. Your messages are being read aloud to the user, so summarize and keep your responses concise (1-2 sentences). Do not use markdown!!",
 					},
 					{
 						role: "user",
