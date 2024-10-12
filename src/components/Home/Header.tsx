@@ -13,7 +13,7 @@ const Header = ({ speaking, onOpenSettings, setTranscript }: { speaking: boolean
 					onPress={() => setTranscript([{ sender: "assistant", message: "Hey, I'm Friday. How can I help?" }])}
 					style={{ ...buttons.pillButtonWrapper, backgroundColor: speaking ? "#D1D1D6" : COLORS.gray3 }}
 				>
-					<Text style={{ ...buttons.pillButtonText, ...FONTS.footnote }}>+ New chat</Text>
+					<Text style={{ ...buttons.pillButtonText, ...FONTS.footnote, color: speaking ? COLORS.black : COLORS.white }}>+ New chat</Text>
 				</TouchableOpacity>
 				<TouchableOpacity onPress={onOpenSettings}>
 					<Settings color={speaking ? "black" : "white"} size={28} strokeWidth={1.5} />

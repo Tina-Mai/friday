@@ -10,7 +10,11 @@ export const getOpenAIResponse = async (message: string, transcript: TranscriptE
 		const response = await openai.chat.completions.create({
 			model: "gpt-4o",
 			messages: [
-				{ role: "system", content: "You are a helpful assistant in a conversation with a user." },
+				{
+					role: "system",
+					content:
+						"You are Friday, a helpful, supportive, and witty assistant for a smart university student. Your messages are being read aloud to the user, so keep your responses concise (3 or less sentences). Do not use markdown; only respond in plain text. You have the ability to search the web for current information when needed.",
+				},
 				{
 					role: "user",
 					content: message + "\n\nFor context, here is the conversation history before this: " + transcript.map((entry) => `${entry.sender}: ${entry.message}`).join("\n"),
