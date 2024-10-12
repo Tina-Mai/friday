@@ -20,8 +20,9 @@ export default function Home() {
 	const [transcript, setTranscript] = useState<TranscriptEntry[]>([{ sender: "assistant", message: "Hey, I'm Friday. How can I help?" }]);
 	const [showSettings, setShowSettings] = useState(false);
 	const { memories, addMemory } = useMemory();
+	const [loading, setLoading] = useState(false);
 
-	// STT
+	// speech-to-text
 	useEffect(() => {
 		let isMounted = true;
 		const handleRecording = async () => {
@@ -83,11 +84,13 @@ export default function Home() {
 
 			addToTranscript({ sender: "user", message });
 			setUserMessage("");
+			setLoading(true);
 
 			try {
 				const openAIResponse = await getOpenAIResponse(message, transcript, memories);
 				// speak the assistant's response
 				await speakMessage(openAIResponse || "");
+				setLoading(false);
 				// add to transcript
 				addToTranscript({ sender: "assistant", message: openAIResponse || "" });
 				// analyze the message to see if it contains info that should be added to long-term memory
@@ -99,9 +102,11 @@ export default function Home() {
 				console.error("Error in sendUserMessage:", error);
 				addToTranscript({ sender: "assistant", message: "Oops, I encountered an error while processing your request. Please try again." });
 				setUserMessage("");
+			} finally {
+				setLoading(false);
 			}
 		},
-		[transcript, addToTranscript, memories]
+		[transcript, addToTranscript, memories, setLoading]
 	);
 
 	return (
@@ -114,7 +119,7 @@ export default function Home() {
 				<KeyboardAvoidingView behavior={"padding"} style={{ ...screen.content, flex: 1 }}>
 					<Header speaking={speaking} onOpenSettings={() => setShowSettings(true)} setTranscript={setTranscript} />
 					{/* transcript */}
-					<Transcript transcript={transcript} speaking={speaking} scrollViewRef={scrollViewRef} />
+					<Transcript transcript={transcript} speaking={speaking} scrollViewRef={scrollViewRef} loading={loading} />
 					{/* show prompts when nothing has been said yet */}
 					{transcript.length <= 1 && <Prompts speaking={speaking} />}
 					{/* mic button */}

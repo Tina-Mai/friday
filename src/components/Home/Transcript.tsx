@@ -1,5 +1,5 @@
 import React from "react";
-import { ScrollView, Text } from "react-native";
+import { View, ScrollView, Text, ActivityIndicator } from "react-native";
 import { FONTS, COLORS } from "@/constants";
 import { TranscriptEntry } from "@/types";
 
@@ -7,9 +7,10 @@ interface TranscriptProps {
 	transcript: TranscriptEntry[];
 	speaking: boolean;
 	scrollViewRef: React.RefObject<ScrollView>;
+	loading: boolean;
 }
 
-const Transcript: React.FC<TranscriptProps> = ({ transcript, speaking, scrollViewRef }) => {
+const Transcript: React.FC<TranscriptProps> = ({ transcript, speaking, scrollViewRef, loading }) => {
 	return (
 		<ScrollView
 			ref={scrollViewRef}
@@ -29,6 +30,12 @@ const Transcript: React.FC<TranscriptProps> = ({ transcript, speaking, scrollVie
 					{entry.message}
 				</Text>
 			))}
+			{loading && (
+				<View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+					<ActivityIndicator size="small" color={COLORS.gray1} />
+					<Text style={{ ...FONTS.titleItalic, color: COLORS.gray1 }}>Thinking...</Text>
+				</View>
+			)}
 		</ScrollView>
 	);
 };
