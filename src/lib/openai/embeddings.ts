@@ -1,5 +1,4 @@
 import OpenAI from "openai";
-import { useMemory } from "@/context/MemoryContext";
 import { TranscriptEntry } from "@/types";
 
 const openai = new OpenAI({
@@ -33,6 +32,7 @@ export async function getRelevantInformation(query: string, transcript: Transcri
 	const relevantMemories = memories.filter((_, index) => cosineSimilarity(queryEmbedding, memoryEmbeddings[index]) > 0.7);
 
 	const relevantInfo = [...relevantTranscript.map((entry) => `${entry.sender}: ${entry.message}`), ...relevantMemories].join("\n");
+	console.log("relevant info:", relevantInfo);
 
 	return relevantInfo;
 }

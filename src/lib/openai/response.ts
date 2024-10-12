@@ -2,8 +2,7 @@ import OpenAI from "openai";
 import { TranscriptEntry } from "@/types";
 import { webSearch } from "@/lib/bing/webSearch";
 import { interactWithLocalMachine } from "@/lib/localComputer/useLocalMachine";
-import { getRelevantInformation } from "./embeddings";
-import { useMemory } from "@/context/MemoryContext";
+import { getRelevantInformation } from "../voyage/embeddings";
 
 const openai = new OpenAI({
 	apiKey: process.env.OPENAI_API_KEY,

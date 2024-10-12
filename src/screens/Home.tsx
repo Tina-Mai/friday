@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { SafeAreaView, View, Text, ScrollView, TextInput, KeyboardAvoidingView, Keyboard } from "react-native";
-import { screen, inputArea, COLORS, FONTS } from "@/constants";
+import { SafeAreaView, ScrollView, KeyboardAvoidingView, Keyboard } from "react-native";
+import { screen, COLORS } from "@/constants";
 import Settings from "@/screens/Settings";
 import Header from "@/components/Home/Header";
 import Prompts from "@/components/Home/Prompts";
