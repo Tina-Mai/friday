@@ -11,6 +11,7 @@ import { getOpenAIResponse } from "@/lib/openai/response";
 import { TranscriptEntry } from "@/types";
 import { useMemory } from "@/context/MemoryContext";
 import { startRecording, stopRecordingAndTranscribe } from "@/lib/openai/stt";
+import { speakMessage } from "@/lib/openai/tss";
 
 export default function Home() {
 	const [speaking, setSpeaking] = useState(false);
@@ -84,6 +85,9 @@ export default function Home() {
 
 			try {
 				const openAIResponse = await getOpenAIResponse(message, transcript, memories);
+				// speak the assistant's response
+				await speakMessage(openAIResponse || "");
+				// add to transcript
 				addToTranscript({ sender: "assistant", message: openAIResponse || "" });
 			} catch (error) {
 				console.error("Error in sendUserMessage:", error);
