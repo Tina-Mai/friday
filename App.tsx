@@ -4,6 +4,7 @@ import { View } from "react-native";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import Navigation from "@/navigation";
+import { MemoryProvider } from "@/context/MemoryContext";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -26,8 +27,10 @@ export default function App() {
 	}
 
 	return (
-		<View style={{ flex: 1 }} onLayout={onLayoutRootView}>
-			<Navigation />
-		</View>
+		<MemoryProvider>
+			<View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+				<Navigation />
+			</View>
+		</MemoryProvider>
 	);
 }

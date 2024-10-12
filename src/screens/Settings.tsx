@@ -1,23 +1,18 @@
 import React, { useState } from "react";
-import { View, Text, Modal, ScrollView, TouchableOpacity, TextInput, Image } from "react-native";
-import { screen, inputArea, images, COLORS, FONTS } from "@/constants";
+import { View, Text, Modal, ScrollView, TouchableOpacity, TextInput } from "react-native";
+import { screen, inputArea, COLORS, FONTS } from "@/constants";
 import { Brain, X, Plus } from "lucide-react-native";
+import { useMemory } from "@/context/MemoryContext";
 
 export default function Settings({ show, setShow }: { show: boolean; setShow: (show: boolean) => void }) {
-	const [memories, setMemories] = useState<string[]>([
-		"User's name is Tina",
-		"User is a student at Stanford University",
-		"CS 222 course website: https://joonspk-research.github.io/cs222-fall24",
-		"CS 109 course website: https://web.stanford.edu/class/cs109/",
-		"CS 238 course website: https://aa228.stanford.edu/",
-	]);
+	const { memories, addMemory, removeMemory } = useMemory();
 	const [newMemory, setNewMemory] = useState("");
 
 	const MemoryItem = ({ memory }: { memory: string }) => {
 		return (
 			<View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", padding: 15, borderRadius: 10, backgroundColor: COLORS.gray6 }}>
 				<Text style={FONTS.subheadline}>{memory}</Text>
-				<TouchableOpacity onPress={() => setMemories(memories.filter((m) => m !== memory))}>
+				<TouchableOpacity onPress={() => removeMemory(memory)}>
 					<X size={12} color="white" style={{ paddingHorizontal: 10 }} />
 				</TouchableOpacity>
 			</View>
@@ -48,7 +43,7 @@ export default function Settings({ show, setShow }: { show: boolean; setShow: (s
 						<TouchableOpacity
 							onPress={() => {
 								if (newMemory.trim()) {
-									setMemories([...memories, newMemory.trim()]);
+									addMemory(newMemory.trim());
 									setNewMemory("");
 								}
 							}}
