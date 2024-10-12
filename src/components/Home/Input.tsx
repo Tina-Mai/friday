@@ -12,7 +12,7 @@ interface InputProps {
 const Input: React.FC<InputProps> = ({ userMessage, setUserMessage, sendUserMessage, speaking }) => {
 	return (
 		<View>
-			<View style={{ ...inputArea.wrapper, backgroundColor: speaking ? "#D1D1D6" : COLORS.gray5 }}>
+			<View style={{ ...inputArea.wrapper, backgroundColor: speaking ? "#D1D1D6" : "#2C2C2E" }}>
 				<TextInput
 					value={userMessage}
 					onChangeText={setUserMessage}
