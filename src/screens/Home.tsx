@@ -12,13 +12,14 @@ import { TranscriptEntry } from "@/types";
 import { useMemory } from "@/context/MemoryContext";
 import { startRecording, stopRecordingAndTranscribe } from "@/lib/openai/stt";
 import { speakMessage } from "@/lib/openai/tss";
+import { analyzeMessageForMemory } from "@/lib/openai/memoryAnalysis";
 
 export default function Home() {
 	const [speaking, setSpeaking] = useState(false);
 	const [userMessage, setUserMessage] = useState("");
 	const [transcript, setTranscript] = useState<TranscriptEntry[]>([{ sender: "assistant", message: "Hey, I'm Friday. How can I help?" }]);
 	const [showSettings, setShowSettings] = useState(false);
-	const { memories } = useMemory();
+	const { memories, addMemory } = useMemory();
 
 	// STT
 	useEffect(() => {
@@ -89,6 +90,11 @@ export default function Home() {
 				await speakMessage(openAIResponse || "");
 				// add to transcript
 				addToTranscript({ sender: "assistant", message: openAIResponse || "" });
+				// analyze the message to see if it contains info that should be added to long-term memory
+				const memoryAnalysis = await analyzeMessageForMemory(message);
+				if (memoryAnalysis) {
+					addMemory(memoryAnalysis);
+				}
 			} catch (error) {
 				console.error("Error in sendUserMessage:", error);
 				addToTranscript({ sender: "assistant", message: "Oops, I encountered an error while processing your request. Please try again." });

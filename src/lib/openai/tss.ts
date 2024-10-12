@@ -17,19 +17,23 @@ export const speakMessage = async (message: string): Promise<void> => {
 
 		const audioData = await response.arrayBuffer();
 
-		// Convert ArrayBuffer to Base64
+		// convert ArrayBuffer to Base64
 		const base64Audio = Buffer.from(audioData).toString("base64");
 
-		// Save the audio file temporarily
+		// save the audio file temporarily
 		const fileUri = FileSystem.documentDirectory + "temp_audio.mp3";
 		await FileSystem.writeAsStringAsync(fileUri, base64Audio, { encoding: FileSystem.EncodingType.Base64 });
 
-		// Play the audio
+		// play the audio
 		const soundObject = new Audio.Sound();
 		await soundObject.loadAsync({ uri: fileUri });
+
+		// set the volume to maximum (1.0)
+		await soundObject.setVolumeAsync(1.0);
+
 		await soundObject.playAsync();
 
-		// Optional: Delete the file after playing
+		// optional: delete the file after playing
 		// await FileSystem.deleteAsync(fileUri);
 	} catch (error) {
 		console.error("Error in speakMessage:", error);
