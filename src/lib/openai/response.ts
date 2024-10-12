@@ -2,6 +2,8 @@ import OpenAI from "openai";
 import { TranscriptEntry } from "@/types";
 import { webSearch } from "@/lib/bing/webSearch";
 import { interactWithLocalMachine } from "@/lib/localComputer/useLocalMachine";
+import { getRelevantInformation } from "./embeddings";
+import { useMemory } from "@/context/MemoryContext";
 
 const openai = new OpenAI({
 	apiKey: process.env.OPENAI_API_KEY,
@@ -38,10 +40,12 @@ const functions = [
 	},
 ];
 
-export const getOpenAIResponse = async (message: string, transcript: TranscriptEntry[]) => {
+export const getOpenAIResponse = async (message: string, transcript: TranscriptEntry[], memories: string[]) => {
 	try {
 		console.log("Starting getOpenAIResponse function");
 		console.log("User message:", message);
+
+		const relevantInfo = await getRelevantInformation(message, transcript, memories);
 
 		// first API call to OpenAI
 		console.log("Making initial API call to OpenAI");
@@ -51,11 +55,12 @@ export const getOpenAIResponse = async (message: string, transcript: TranscriptE
 				{
 					role: "system",
 					content:
-						"You are Friday, a helpful, supportive, and witty assistant for a smart university student. Your messages are being read aloud to the user, so keep your responses concise (1-2 sentences). Do not use markdown; only respond in plain text. You have the ability to search the web for current information and interact with their local machine (for modifying the user's calendar, managing their emails when needed, etc.).",
+						"You are Friday, a helpful, supportive, and witty assistant for a smart university student. Your messages are being read aloud to the user, so keep your responses concise (1-2 sentences). Do not use markdown; only respond in plain text. You have the ability to search the web for current information and interact with their local machine (for modifying the user's calendar, managing their emails when needed, etc.). Here's some relevant information about the user and conversation context:\n\n" +
+						relevantInfo,
 				},
 				{
 					role: "user",
-					content: message + "\n\nFor context, here is the conversation history before this: " + transcript.map((entry) => `${entry.sender}: ${entry.message}`).join("\n"),
+					content: message,
 				},
 			],
 			functions: functions,

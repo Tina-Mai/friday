@@ -9,13 +9,14 @@ import Transcript from "@/components/Home/Transcript";
 import Input from "@/components/Home/Input";
 import { getOpenAIResponse } from "@/lib/openai/response";
 import { TranscriptEntry } from "@/types";
+import { useMemory } from "@/context/MemoryContext";
 
 export default function Home() {
 	const [speaking, setSpeaking] = useState(false);
 	const [userMessage, setUserMessage] = useState("");
-	// this is the short-term memory. important user messages are saved in the long-term memory as we go.
 	const [transcript, setTranscript] = useState<TranscriptEntry[]>([{ sender: "assistant", message: "Hey, I'm Friday. How can I help?" }]);
 	const [showSettings, setShowSettings] = useState(false);
+	const { memories } = useMemory();
 
 	// scroll to bottom
 	const scrollViewRef = useRef<ScrollView>(null);
@@ -50,12 +51,12 @@ export default function Home() {
 		setUserMessage("");
 
 		try {
-			const openAIResponse = await getOpenAIResponse(userMessage, transcript);
+			const openAIResponse = await getOpenAIResponse(userMessage, transcript, memories);
 			addToTranscript({ sender: "assistant", message: openAIResponse || "" });
 		} catch (error) {
 			console.error("Error in sendUserMessage:", error);
 		}
-	}, [userMessage, transcript, addToTranscript]);
+	}, [userMessage, transcript, addToTranscript, memories]);
 
 	return (
 		<SafeAreaView style={{ ...screen.safe, backgroundColor: speaking ? COLORS.light : COLORS.bg }}>
