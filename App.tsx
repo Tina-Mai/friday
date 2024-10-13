@@ -9,6 +9,7 @@ import { MemoryProvider } from "@/context/MemoryContext";
 SplashScreen.preventAutoHideAsync();
 
 LogBox.ignoreLogs(["Error stopping recording and transcribing: [Error: No recording in progress]"]);
+LogBox.ignoreAllLogs();
 
 export default function App() {
 	// load fonts

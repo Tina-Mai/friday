@@ -11,7 +11,7 @@ export default function Settings({ show, setShow }: { show: boolean; setShow: (s
 	const MemoryItem = ({ memory }: { memory: string }) => {
 		return (
 			<View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", padding: 15, borderRadius: 10, backgroundColor: COLORS.gray6 }}>
-				<Text style={FONTS.subheadline}>{memory}</Text>
+				<Text style={{ ...FONTS.subheadline, width: "90%" }}>{memory}</Text>
 				<TouchableOpacity onPress={() => removeMemory(memory)}>
 					<X size={12} color="white" style={{ paddingHorizontal: 10 }} />
 				</TouchableOpacity>

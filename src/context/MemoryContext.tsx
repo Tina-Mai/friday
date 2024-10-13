@@ -15,6 +15,7 @@ export const MemoryProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 		"CS 222 course website: https://joonspk-research.github.io/cs222-fall24",
 		"CS 109 course website: https://web.stanford.edu/class/cs109/",
 		"CS 238 course website: https://aa228.stanford.edu/",
+		"User loves the late-night coffee shop On Call Café at Stanford",
 	]);
 
 	const addMemory = (memory: string) => {

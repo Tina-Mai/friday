@@ -5,7 +5,7 @@
 
 export async function interactWithLocalMachine(prompt: string) {
 	try {
-		const response = await fetch("http://10.10.31.22:5001/run_interpreter", {
+		const response = await fetch("http://10.10.51.146:5001/run_interpreter", {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
